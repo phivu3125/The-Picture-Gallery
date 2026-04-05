@@ -1,25 +1,13 @@
 import { useControls } from "leva";
 import { useEffect } from "react";
 import { useSceneStore } from "../store/scene";
-import type { TransformMode } from "../types/scene";
-
-function handleChange(
-	prop: "position" | "rotation" | "scale",
-	index: number,
-	value: number,
-) {
-	const { selectedId, objects, updateTransform } = useSceneStore.getState();
-	if (!selectedId) return;
-	const cur = objects.find((o) => o.id === selectedId);
-	if (!cur) return;
-	const arr = [...cur[prop]] as [number, number, number];
-	arr[index] = value;
-	updateTransform(selectedId, prop, arr);
-}
-
-function fmt(n: number) {
-	return n.toFixed(2);
-}
+import {
+	copyAllSection,
+	infoSection,
+	positionSection,
+	rotationSection,
+	scaleSection,
+} from "./sections";
 
 export default function ObjectInspector() {
 	const selectedId = useSceneStore((s) => s.selectedId);
@@ -29,80 +17,14 @@ export default function ObjectInspector() {
 		? (objects.find((o) => o.id === selectedId) ?? null)
 		: null;
 
-	// Info + mode
 	const [, setInfo] = useControls("Inspector", () => ({
-		name: { value: "(none)", editable: false },
-		"Transform Mode": {
-			value: "translate" as TransformMode,
-			options: {
-				Translate: "translate" as TransformMode,
-				Rotate: "rotate" as TransformMode,
-				Scale: "scale" as TransformMode,
-			},
-			onChange: (v: TransformMode) =>
-				useSceneStore.getState().setTransformMode(v),
-		},
+		...infoSection(),
+		...copyAllSection(),
 	}));
 
-	// Position
-	const [, setPos] = useControls("Position", () => ({
-		x: {
-			value: 0,
-			step: 0.1,
-			onChange: (v: number) => handleChange("position", 0, v),
-		},
-		y: {
-			value: 0,
-			step: 0.1,
-			onChange: (v: number) => handleChange("position", 1, v),
-		},
-		z: {
-			value: 0,
-			step: 0.1,
-			onChange: (v: number) => handleChange("position", 2, v),
-		},
-	}));
-
-	// Rotation
-	const [, setRot] = useControls("Rotation", () => ({
-		x: {
-			value: 0,
-			step: 0.05,
-			onChange: (v: number) => handleChange("rotation", 0, v),
-		},
-		y: {
-			value: 0,
-			step: 0.05,
-			onChange: (v: number) => handleChange("rotation", 1, v),
-		},
-		z: {
-			value: 0,
-			step: 0.05,
-			onChange: (v: number) => handleChange("rotation", 2, v),
-		},
-	}));
-
-	// Scale
-	const [, setScale] = useControls("Scale", () => ({
-		x: {
-			value: 1,
-			step: 0.1,
-			min: 0.1,
-			onChange: (v: number) => handleChange("scale", 0, v),
-		},
-		y: {
-			value: 1,
-			step: 0.1,
-			min: 0.1,
-			onChange: (v: number) => handleChange("scale", 1, v),
-		},
-		z: {
-			value: 1,
-			step: 0.1,
-			min: 0.1,
-			onChange: (v: number) => handleChange("scale", 2, v),
-		},
-	}));
+	const [, setPos] = useControls("Position", positionSection);
+	const [, setRot] = useControls("Rotation", rotationSection);
+	const [, setScale] = useControls("Scale", scaleSection);
 
 	// Sync store → Leva
 	useEffect(() => {
@@ -140,35 +62,5 @@ export default function ObjectInspector() {
 		setScale,
 	]);
 
-	if (!selected) return null;
-
-	const copyText = `position={[${fmt(selected.position[0])}, ${fmt(selected.position[1])}, ${fmt(selected.position[2])}]}
-rotation={[${fmt(selected.rotation[0])}, ${fmt(selected.rotation[1])}, ${fmt(selected.rotation[2])}]}
-scale={[${fmt(selected.scale[0])}, ${fmt(selected.scale[1])}, ${fmt(selected.scale[2])}]}`;
-
-	return (
-		<div
-			onClick={() => navigator.clipboard.writeText(copyText)}
-			style={{
-				position: "fixed",
-				bottom: 16,
-				right: 16,
-				background: "#1a1a2e",
-				color: "#7fdbca",
-				padding: "12px 16px",
-				borderRadius: 8,
-				fontFamily: "monospace",
-				fontSize: 12,
-				cursor: "pointer",
-				border: "1px solid #333",
-				whiteSpace: "pre",
-				zIndex: 1000,
-			}}
-		>
-			<div style={{ color: "#888", fontSize: 10, marginBottom: 4 }}>
-				Click to copy
-			</div>
-			{copyText}
-		</div>
-	);
+	return null;
 }
