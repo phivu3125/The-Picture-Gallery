@@ -1,0 +1,47 @@
+import { useHelper } from "@react-three/drei";
+import { useRef } from "react";
+import type { Mesh } from "three";
+import { BoxHelper } from "three";
+import { useSceneStore } from "../store/scene";
+import type { SceneObjectData } from "../types/scene";
+
+const GEOMETRIES = {
+	box: <boxGeometry args={[1, 1, 1]} />,
+	sphere: <sphereGeometry args={[0.75, 32, 32]} />,
+	torus: <torusGeometry args={[0.5, 0.2, 16, 32]} />,
+	cylinder: <cylinderGeometry args={[0.5, 0.5, 1, 32]} />,
+	cone: <coneGeometry args={[0.5, 1, 32]} />,
+} as const;
+
+interface SceneObjectProps {
+	data: SceneObjectData;
+}
+
+export default function SceneObject({ data }: SceneObjectProps) {
+	const meshRef = useRef<Mesh>(null!);
+	const selectedId = useSceneStore((s) => s.selectedId);
+	const selectObject = useSceneStore((s) => s.selectObject);
+	const isSelected = selectedId === data.id;
+
+	useHelper(isSelected ? meshRef : null, BoxHelper, "cyan");
+
+	return (
+		<mesh
+			ref={meshRef}
+			position={data.position}
+			rotation={data.rotation}
+			scale={data.scale}
+			onClick={(e) => {
+				e.stopPropagation();
+				selectObject(data.id);
+			}}
+		>
+			{GEOMETRIES[data.geometry]}
+			<meshStandardMaterial
+				color={data.color}
+				emissive={isSelected ? data.color : "#000000"}
+				emissiveIntensity={isSelected ? 0.15 : 0}
+			/>
+		</mesh>
+	);
+}
