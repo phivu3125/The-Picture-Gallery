@@ -1,6 +1,6 @@
 import type { Object3D } from "three";
 import { create } from "zustand";
-import type { GizmoType, SceneObjectData, TransformMode } from "../types/scene";
+import type { SceneObjectData, TransformMode } from "../types/scene";
 
 // Ref registry — lives outside React to avoid re-renders
 const meshRefMap = new Map<string, Object3D>();
@@ -17,20 +17,9 @@ export function getMeshRef(id: string): Object3D | undefined {
 	return meshRefMap.get(id);
 }
 
-// Store original positions for reset
-const originalTransforms = new Map<
-	string,
-	{
-		position: [number, number, number];
-		rotation: [number, number, number];
-		scale: [number, number, number];
-	}
->();
-
 interface SceneState {
 	objects: SceneObjectData[];
 	selectedId: string | null;
-	gizmoType: GizmoType;
 	transformMode: TransformMode;
 
 	selectObject: (id: string | null) => void;
@@ -39,17 +28,7 @@ interface SceneState {
 		property: "position" | "rotation" | "scale",
 		value: [number, number, number],
 	) => void;
-	batchUpdateTransform: (
-		id: string,
-		transforms: {
-			position: [number, number, number];
-			rotation: [number, number, number];
-			scale: [number, number, number];
-		},
-	) => void;
-	setGizmoType: (type: GizmoType) => void;
 	setTransformMode: (mode: TransformMode) => void;
-	resetTransform: (id: string) => void;
 }
 
 const DEFAULT_OBJECTS: SceneObjectData[] = [
@@ -82,19 +61,9 @@ const DEFAULT_OBJECTS: SceneObjectData[] = [
 	},
 ];
 
-// Cache originals on init
-for (const obj of DEFAULT_OBJECTS) {
-	originalTransforms.set(obj.id, {
-		position: [...obj.position],
-		rotation: [...obj.rotation],
-		scale: [...obj.scale],
-	});
-}
-
 export const useSceneStore = create<SceneState>()((set) => ({
 	objects: DEFAULT_OBJECTS,
 	selectedId: null,
-	gizmoType: "transform",
 	transformMode: "translate",
 
 	selectObject: (id) => set({ selectedId: id }),
@@ -106,38 +75,5 @@ export const useSceneStore = create<SceneState>()((set) => ({
 			),
 		})),
 
-	batchUpdateTransform: (id, transforms) =>
-		set((state) => ({
-			objects: state.objects.map((obj) =>
-				obj.id === id
-					? {
-							...obj,
-							position: transforms.position,
-							rotation: transforms.rotation,
-							scale: transforms.scale,
-						}
-					: obj,
-			),
-		})),
-
-	setGizmoType: (type) => set({ gizmoType: type }),
 	setTransformMode: (mode) => set({ transformMode: mode }),
-
-	resetTransform: (id) =>
-		set((state) => {
-			const original = originalTransforms.get(id);
-			if (!original) return state;
-			return {
-				objects: state.objects.map((obj) =>
-					obj.id === id
-						? {
-								...obj,
-								position: [...original.position] as [number, number, number],
-								rotation: [...original.rotation] as [number, number, number],
-								scale: [...original.scale] as [number, number, number],
-							}
-						: obj,
-				),
-			};
-		}),
 }));

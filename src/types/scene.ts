@@ -8,5 +8,4 @@ export interface SceneObjectData {
 	scale: [number, number, number];
 }
 
-export type GizmoType = "transform" | "pivot";
 export type TransformMode = "translate" | "rotate" | "scale";
