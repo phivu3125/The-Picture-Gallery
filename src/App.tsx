@@ -33,7 +33,7 @@ export default function App() {
 	return (
 		<>
 			{DevTools && (
-				<Suspense>
+				<Suspense fallback={null}>
 					<DevTools />
 				</Suspense>
 			)}

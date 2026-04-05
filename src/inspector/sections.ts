@@ -1,6 +1,6 @@
 import { button } from "leva";
 import { useSceneStore } from "../store/scene";
-import type { SceneObjectData, TransformMode } from "../types/scene";
+import type { TransformMode } from "../types/scene";
 import { POSITION_CONFIG, ROTATION_CONFIG, SCALE_CONFIG } from "./constants";
 import { copyToClipboard, formatTransformBundle, formatVec3Prop } from "./copy";
 
@@ -94,9 +94,7 @@ export function copyAllSection() {
 		"📋 Copy All Transform": button(() => {
 			const { selectedId, objects } = useSceneStore.getState();
 			if (!selectedId) return;
-			const obj = objects.find((o) => o.id === selectedId) as
-				| SceneObjectData
-				| undefined;
+			const obj = objects.find((o) => o.id === selectedId);
 			if (!obj) return;
 			copyToClipboard(formatTransformBundle(obj));
 		}),

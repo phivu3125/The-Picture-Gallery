@@ -31,5 +31,8 @@ export function formatTransformBundle(obj: SceneObjectData): string {
 /* ── Clipboard ───────────────────────────────────────────────── */
 
 export function copyToClipboard(text: string): void {
-	navigator.clipboard.writeText(text);
+	navigator.clipboard.writeText(text).catch(() => {
+		// Clipboard API may fail on HTTP or in unsupported contexts
+		console.warn("[inspector] clipboard write failed");
+	});
 }
