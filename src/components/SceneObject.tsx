@@ -2,6 +2,7 @@ import { useHelper } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import type { Mesh } from "three";
 import { BoxHelper } from "three";
+import { IS_DEV } from "../inspector/constants";
 import {
 	registerMeshRef,
 	unregisterMeshRef,
@@ -27,15 +28,17 @@ export default function SceneObject({ data }: SceneObjectProps) {
 	const selectObject = useSceneStore((s) => s.selectObject);
 	const isSelected = selectedId === data.id;
 
-	// Register mesh ref for gizmo access
+	// Register mesh ref for gizmo access — dev-only
 	useEffect(() => {
+		if (!IS_DEV) return;
 		if (meshRef.current) {
 			registerMeshRef(data.id, meshRef.current);
 		}
 		return () => unregisterMeshRef(data.id);
 	}, [data.id]);
 
-	useHelper(isSelected ? meshRef : null, BoxHelper, "cyan");
+	// Selection highlight — dev-only
+	useHelper(IS_DEV && isSelected ? meshRef : null, BoxHelper, "cyan");
 
 	return (
 		<mesh
@@ -43,16 +46,20 @@ export default function SceneObject({ data }: SceneObjectProps) {
 			position={data.position}
 			rotation={data.rotation}
 			scale={data.scale}
-			onClick={(e) => {
-				e.stopPropagation();
-				selectObject(data.id);
-			}}
+			onClick={
+				IS_DEV
+					? (e) => {
+							e.stopPropagation();
+							selectObject(data.id);
+						}
+					: undefined
+			}
 		>
 			{GEOMETRIES[data.geometry]}
 			<meshStandardMaterial
 				color={data.color}
-				emissive={isSelected ? data.color : "#000000"}
-				emissiveIntensity={isSelected ? 0.15 : 0}
+				emissive={IS_DEV && isSelected ? data.color : "#000000"}
+				emissiveIntensity={IS_DEV && isSelected ? 0.15 : 0}
 			/>
 		</mesh>
 	);
