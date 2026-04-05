@@ -1,8 +1,12 @@
 import { useHelper } from "@react-three/drei";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { Mesh } from "three";
 import { BoxHelper } from "three";
-import { useSceneStore } from "../store/scene";
+import {
+	registerMeshRef,
+	unregisterMeshRef,
+	useSceneStore,
+} from "../store/scene";
 import type { SceneObjectData } from "../types/scene";
 
 const GEOMETRIES = {
@@ -22,6 +26,14 @@ export default function SceneObject({ data }: SceneObjectProps) {
 	const selectedId = useSceneStore((s) => s.selectedId);
 	const selectObject = useSceneStore((s) => s.selectObject);
 	const isSelected = selectedId === data.id;
+
+	// Register mesh ref for gizmo access
+	useEffect(() => {
+		if (meshRef.current) {
+			registerMeshRef(data.id, meshRef.current);
+		}
+		return () => unregisterMeshRef(data.id);
+	}, [data.id]);
 
 	useHelper(isSelected ? meshRef : null, BoxHelper, "cyan");
 

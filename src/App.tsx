@@ -7,6 +7,7 @@ import {
 import { Canvas } from "@react-three/fiber";
 import { Leva } from "leva";
 import Scene from "./components/Scene";
+import SelectionGizmo from "./components/SelectionGizmo";
 import ObjectInspector from "./inspector/ObjectInspector";
 import { useSceneStore } from "./store/scene";
 
@@ -25,6 +26,7 @@ export default function App() {
 				<directionalLight position={[5, 10, 5]} intensity={1} castShadow />
 
 				<Scene />
+				<SelectionGizmo />
 
 				<Grid
 					infiniteGrid

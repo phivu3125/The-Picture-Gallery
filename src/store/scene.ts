@@ -1,5 +1,21 @@
+import type { Object3D } from "three";
 import { create } from "zustand";
 import type { GizmoType, SceneObjectData, TransformMode } from "../types/scene";
+
+// Ref registry — lives outside React to avoid re-renders
+const meshRefMap = new Map<string, Object3D>();
+
+export function registerMeshRef(id: string, obj: Object3D) {
+	meshRefMap.set(id, obj);
+}
+
+export function unregisterMeshRef(id: string) {
+	meshRefMap.delete(id);
+}
+
+export function getMeshRef(id: string): Object3D | undefined {
+	return meshRefMap.get(id);
+}
 
 interface SceneState {
 	objects: SceneObjectData[];
