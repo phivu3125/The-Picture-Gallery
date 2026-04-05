@@ -1,5 +1,3 @@
-import type * as THREE from "three";
-
 export interface SceneObjectData {
 	id: string;
 	name: string;
@@ -12,8 +10,3 @@ export interface SceneObjectData {
 
 export type GizmoType = "transform" | "pivot";
 export type TransformMode = "translate" | "rotate" | "scale";
-
-export interface SceneObjectRef {
-	id: string;
-	object: THREE.Object3D;
-}
