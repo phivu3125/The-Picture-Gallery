@@ -1,4 +1,4 @@
-import { CameraControls } from "@react-three/drei";
+import { CameraControls, useProgress } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import type CameraControlsImpl from "camera-controls";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
@@ -212,6 +212,8 @@ function HotspotMarkers({
 
 export default function App() {
 	const controlsRef = useRef<CameraControlsImpl>(null!);
+	const { progress, active } = useProgress();
+	const sceneReady = !active && progress >= 100;
 
 	// Navigator index: always valid (starts at 0), controls which title shows in bottom bar
 	const [navIndex, setNavIndex] = useState(0);
@@ -301,27 +303,31 @@ export default function App() {
 
 				<Suspense fallback={null}>
 					<GalleryScene />
+					<HotspotMarkers
+						activeIndex={activeIndex}
+						onClickHotspot={handleHotspotClick}
+					/>
 				</Suspense>
 
-				<HotspotMarkers
-					activeIndex={activeIndex}
-					onClickHotspot={handleHotspotClick}
-				/>
 				<SceneControls controlsRef={controlsRef} />
 			</Canvas>
 
-			{/* HTML overlays — outside Canvas */}
-			<InfoPanel
-				hotspot={sidebarOpen ? activeHotspot : null}
-				onClose={handleCloseSidebar}
-			/>
-			<PaintingNavigator
-				hotspot={navHotspot}
-				hasPrev={navIndex > 0}
-				hasNext={navIndex < HOTSPOTS.length - 1}
-				onPrev={goToPrev}
-				onNext={goToNext}
-			/>
+			{/* HTML overlays — only show after model loaded */}
+			{sceneReady && (
+				<>
+					<InfoPanel
+						hotspot={sidebarOpen ? activeHotspot : null}
+						onClose={handleCloseSidebar}
+					/>
+					<PaintingNavigator
+						hotspot={navHotspot}
+						hasPrev={navIndex > 0}
+						hasNext={navIndex < HOTSPOTS.length - 1}
+						onPrev={goToPrev}
+						onNext={goToNext}
+					/>
+				</>
+			)}
 
 			{/* Hide hotspot markers on mobile — navigator handles browsing */}
 			<style>{`
