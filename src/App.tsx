@@ -6,6 +6,7 @@ import GalleryScene from "./components/GalleryScene";
 import type { HotspotData } from "./components/Hotspot";
 import Hotspot from "./components/Hotspot";
 import InfoPanel from "./components/InfoPanel";
+import LoadingScreen from "./components/LoadingScreen";
 import PaintingNavigator from "./components/PaintingNavigator";
 
 // === HOTSPOT DATA ===
@@ -281,6 +282,7 @@ export default function App() {
 
 	return (
 		<div style={{ width: "100vw", height: "100vh", position: "relative" }}>
+			<LoadingScreen />
 			<Canvas camera={{ fov: 50, near: 0.05, far: 100 }}>
 				{/* Fill light */}
 				<ambientLight intensity={1.2} />
