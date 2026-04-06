@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from "react";
 import type { Group } from "three";
 import { Box3, Vector3 } from "three";
 
-const MODEL_PATH = "/models/room1.gltf";
+const MODEL_PATH = "/models/scene.glb";
 const SCALE = 10;
 
 export default function GalleryScene() {
