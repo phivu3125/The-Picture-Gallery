@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from "react";
 import type { Group } from "three";
 import { Box3, Vector3 } from "three";
 
-const MODEL_PATH = "/models/scene-draco.glb";
+const MODEL_PATH = "/models/scene-compressed.glb";
 const SCALE = 10;
 
 export default function GalleryScene() {
