@@ -4,12 +4,12 @@ import { useCallback, useEffect, useRef } from "react";
 import type { Group } from "three";
 import { Box3, Vector3 } from "three";
 
-const MODEL_PATH = "/models/scene.glb";
+const MODEL_PATH = "/models/scene-draco.glb";
 const SCALE = 10;
 
 export default function GalleryScene() {
 	const groupRef = useRef<Group>(null!);
-	const { scene, animations } = useGLTF(MODEL_PATH);
+	const { scene, animations } = useGLTF(MODEL_PATH, true);
 	const { actions } = useAnimations(animations, groupRef);
 
 	// Log bounding box (after scale) — check browser console then remove
@@ -86,4 +86,4 @@ export default function GalleryScene() {
 	);
 }
 
-useGLTF.preload(MODEL_PATH);
+useGLTF.preload(MODEL_PATH, true);

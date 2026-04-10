@@ -2,14 +2,13 @@ import { CameraControls, useProgress } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import type CameraControlsImpl from "camera-controls";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Box3, Vector3 } from "three";
 import GalleryScene from "./components/GalleryScene";
 import type { HotspotData } from "./components/Hotspot";
 import Hotspot from "./components/Hotspot";
 import InfoPanel from "./components/InfoPanel";
 import LoadingScreen from "./components/LoadingScreen";
 import PaintingNavigator from "./components/PaintingNavigator";
-
-// === HOTSPOT DATA ===
 // Add more entries here using coordinates from the click helper
 const HOTSPOTS: HotspotData[] = [
 	{
@@ -165,15 +164,23 @@ const HOTSPOTS: HotspotData[] = [
 const DEFAULT_CAM_POS: [number, number, number] = [0, 1.3, 1.5];
 const DEFAULT_CAM_TARGET: [number, number, number] = [0, 1.1, -2.0];
 
+// Room boundary — camera cannot leave this box
+const ROOM_BOUNDARY = new Box3(
+	new Vector3(-1.25, 0.70, -3.80),
+	new Vector3(1.43, 1.55, 3.40),
+);
+
 function SceneControls({
 	controlsRef,
 }: {
 	controlsRef: React.RefObject<CameraControlsImpl>;
 }) {
+	// Set initial camera position — runs once
 	useEffect(() => {
 		const controls = controlsRef.current;
 		if (!controls) return;
-
+		controls.setBoundary(ROOM_BOUNDARY);
+		controls.boundaryEnclosesCamera = true;
 		controls.setLookAt(...DEFAULT_CAM_POS, ...DEFAULT_CAM_TARGET, false);
 	}, [controlsRef]);
 
@@ -181,10 +188,10 @@ function SceneControls({
 		<CameraControls
 			ref={controlsRef}
 			makeDefault
-			minDistance={0.5}
-			maxDistance={4}
+			minDistance={0.3}
+			maxDistance={2}
 			minPolarAngle={Math.PI / 4}
-			maxPolarAngle={Math.PI / 1.8}
+			maxPolarAngle={Math.PI / 2.2}
 		/>
 	);
 }
@@ -214,6 +221,7 @@ export default function App() {
 	const controlsRef = useRef<CameraControlsImpl>(null!);
 	const { progress, active } = useProgress();
 	const sceneReady = !active && progress >= 100;
+
 
 	// Navigator index: always valid (starts at 0), controls which title shows in bottom bar
 	const [navIndex, setNavIndex] = useState(0);
@@ -309,6 +317,8 @@ export default function App() {
 					/>
 				</Suspense>
 
+
+				{/* Camera boundary keeps camera inside the room */}
 				<SceneControls controlsRef={controlsRef} />
 			</Canvas>
 
